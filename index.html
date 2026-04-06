@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Koumkan">
+<meta name="theme-color" content="#1a0a00">
+<title>Koumkan</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Noto+Serif:wght@700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --felt: #0d2b1a;
+    --gold: #c9922a;
+    --gold-light: #e8b84b;
+    --cream: #f5ead0;
+    --cream-dim: #d4c49a;
+    --red: #8b1a1a;
+    --dark: #1a0a00;
+    --card-bg: rgba(245,234,208,0.97);
+    --shadow: 0 4px 24px rgba(0,0,0,0.5);
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--felt);
+    color: var(--cream);
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.03) 39px, rgba(255,255,255,0.03) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.03) 39px, rgba(255,255,255,0.03) 40px);
+  }
+  .header {
+    background: var(--dark);
+    border-bottom: 2px solid var(--gold);
+    padding: 18px 20px 14px;
+    text-align: center;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px; font-weight: 900;
+    color: var(--gold-light);
+    letter-spacing: 4px; text-transform: uppercase;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  }
+  .header .subtitle { font-size: 11px; color: var(--cream-dim); letter-spacing: 2px; margin-top: 2px; font-family: "Noto Serif", serif; }
+  .tabs { display: flex; background: var(--dark); border-bottom: 1px solid rgba(201,146,42,0.3); }
+  .tab {
+    flex: 1; padding: 12px 8px; border: none;
+    background: transparent; color: var(--cream-dim);
+    font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+    border-bottom: 3px solid transparent; transition: all 0.2s;
+  }
+  .tab.active { color: var(--gold-light); border-bottom-color: var(--gold); }
+  .screen { display: none; padding: 16px; }
+  .screen.active { display: block; }
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 18px; margin-bottom: 14px;
+    box-shadow: var(--shadow); color: var(--dark);
+  }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px; font-weight: 700;
+    color: var(--red); letter-spacing: 1px;
+    text-transform: uppercase; margin-bottom: 14px;
+    border-bottom: 1px solid rgba(139,26,26,0.2); padding-bottom: 8px;
+  }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 12px 20px; border-radius: 50px; border: none;
+    font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700;
+    cursor: pointer; transition: all 0.15s; user-select: none;
+  }
+  .btn-gold { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: var(--dark); box-shadow: 0 3px 12px rgba(201,146,42,0.4); }
+  .btn-gold:active { transform: scale(0.97); }
+  .btn-red { background: var(--red); color: var(--cream); box-shadow: 0 3px 12px rgba(139,26,26,0.4); }
+  .btn-red:active { transform: scale(0.97); }
+  .btn-green { background: #1a5c2a; color: var(--cream); box-shadow: 0 3px 12px rgba(26,92,42,0.4); }
+  .btn-green:active { transform: scale(0.97); }
+  .btn-outline { background: transparent; color: var(--red); border: 2px solid var(--red); padding: 10px 18px; }
+  .btn-sm { padding: 7px 14px; font-size: 13px; }
+  .btn-block { width: 100%; }
+  input[type="text"], input[type="number"] {
+    width: 100%; padding: 12px 16px;
+    border: 1.5px solid rgba(139,26,26,0.3);
+    border-radius: 10px; font-family: 'Nunito', sans-serif;
+    font-size: 16px; background: rgba(255,255,255,0.7);
+    color: var(--dark); outline: none; transition: border 0.2s;
+  }
+  input:focus { border-color: var(--red); }
+  .player-setup-row { display: flex; gap: 8px; margin-bottom: 10px; }
+  .player-setup-row input { flex: 1; }
+  .player-chip {
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(139,26,26,0.08); border: 1px solid rgba(139,26,26,0.2);
+    border-radius: 10px; padding: 10px 14px; margin-bottom: 8px;
+    font-weight: 600; color: var(--dark);
+  }
+  .player-chip .remove-btn { background: none; border: none; color: var(--red); font-size: 20px; cursor: pointer; line-height: 1; padding: 0 2px; }
+  .pot-row { display: flex; align-items: center; gap: 10px; }
+  .pot-row label { font-weight: 700; color: var(--dark); white-space: nowrap; }
+  .pot-prefix { font-size: 18px; color: var(--red); font-weight: 700; }
+  .leaderboard { width: 100%; border-collapse: collapse; }
+  .leaderboard th {
+    font-family: 'Playfair Display', serif;
+    font-size: 12px; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--red); padding: 6px 10px; text-align: left;
+    border-bottom: 2px solid rgba(139,26,26,0.25);
+  }
+  .leaderboard th:last-child { text-align: right; }
+  .leaderboard td { padding: 11px 10px; font-size: 15px; color: var(--dark); border-bottom: 1px solid rgba(0,0,0,0.07); }
+  .leaderboard td:last-child { text-align: right; font-weight: 700; }
+  .leaderboard tr.eliminated td { opacity: 0.4; text-decoration: line-through; }
+  .rank-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 50%;
+    font-weight: 700; font-size: 13px; margin-right: 6px;
+  }
+  .rank-1 { background: var(--gold); color: var(--dark); }
+  .rank-2 { background: #b0b0b0; color: var(--dark); }
+  .rank-3 { background: #a0714a; color: #fff; }
+  .rank-other { background: rgba(0,0,0,0.1); color: var(--dark); }
+  .pot-display {
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(135deg, var(--red), #6b1010);
+    border-radius: 12px; padding: 16px 20px; margin-bottom: 14px;
+    box-shadow: 0 3px 16px rgba(139,26,26,0.4);
+  }
+  .pot-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(245,234,208,0.7); }
+  .pot-amount { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 900; color: var(--gold-light); }
+  .pot-edit-btn { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 6px 12px; color: var(--cream); font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .round-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .round-num { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--red); }
+  .score-entry-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .score-entry-row .player-name { flex: 1; font-weight: 600; font-size: 15px; color: var(--dark); }
+  .score-entry-row input { width: 80px; text-align: center; padding: 10px 8px; }
+  .history-round { background: rgba(139,26,26,0.05); border: 1px solid rgba(139,26,26,0.15); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+  .history-round-title { font-weight: 700; font-size: 13px; color: var(--red); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .history-row { display: flex; justify-content: space-between; font-size: 14px; color: var(--cream); padding: 3px 0; }
+  .history-row.winner { font-weight: 700; color: var(--red); }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay.open { display: flex; }
+  .modal-box { background: var(--card-bg); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 380px; box-shadow: 0 8px 40px rgba(0,0,0,0.6); }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--red); margin-bottom: 12px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+  .modal-actions .btn { flex: 1; }
+  .divider { height: 1px; background: rgba(139,26,26,0.15); margin: 12px 0; }
+  .hint { font-size: 12px; color: #888; margin-top: 6px; }
+  .no-players-note { background: rgba(139,26,26,0.08); border-radius: 10px; padding: 12px 16px; font-size: 14px; color: var(--red); text-align: center; margin-top: 10px; }
+  .buyin-badge {
+    display: inline-block; background: rgba(201,146,42,0.15);
+    border: 1px solid rgba(201,146,42,0.4);
+    border-radius: 6px; padding: 1px 7px;
+    font-size: 11px; font-weight: 700; color: #7a5a00;
+    margin-left: 4px; vertical-align: middle;
+  }
+  .bust-alert {
+    background: linear-gradient(135deg, #8b1a1a, #6b1010);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 10px;
+    color: var(--cream); font-weight: 700; font-size: 14px;
+  }
+  .bust-alert .bust-name { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--gold-light); }
+  .score-warning { color: var(--red); font-weight: 700; }
+  .eliminated-tag { font-size: 11px; color: #888; font-weight: 600; font-style: italic; margin-left: 4px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Koumkan</h1>
+  <div class="subtitle">Κούμ Καν · Score Tracker</div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('setup')">Setup</button>
+  <button class="tab" onclick="showTab('score')">Scores</button>
+  <button class="tab" onclick="showTab('history')">History</button>
+</div>
+
+<!-- SETUP -->
+<div id="screen-setup" class="screen active">
+  <div class="card">
+    <div class="card-title">Players</div>
+    <div class="player-setup-row">
+      <input type="text" id="player-input" placeholder="Player name..." maxlength="20" onkeydown="if(event.key==='Enter')addPlayer()">
+      <button class="btn btn-red btn-sm" onclick="addPlayer()">Add</button>
+    </div>
+    <div id="player-list"></div>
+    <div id="no-players-note" class="no-players-note" style="display:none">Add at least 2 players to start</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Buy-In &amp; Pot</div>
+    <div class="pot-row" style="margin-bottom:10px">
+      <label>Buy-in per player:</label>
+      <span class="pot-prefix">$</span>
+      <input type="number" id="buyin-input" placeholder="0.00" step="0.01" min="0" style="width:120px">
+    </div>
+    <p class="hint">Each player pays this amount to start. If a player busts (100+ points), they can re-enter for double their last buy-in, which goes into the pot. The pot grows with each buy-in.</p>
+  </div>
+
+  <button class="btn btn-gold btn-block" onclick="startGame()" style="padding:16px">Start Game</button>
+</div>
+
+<!-- SCORES -->
+<div id="screen-score" class="screen">
+  <div class="pot-display" onclick="openPotModal()">
+    <div>
+      <div class="pot-label">Current Pot</div>
+      <div class="pot-amount" id="pot-display-amount">$0.00</div>
+    </div>
+    <button class="pot-edit-btn">Edit</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
+      <span>Standings</span>
+      <span id="round-counter" style="font-size:12px;color:#888;font-family:'Nunito',sans-serif;font-weight:600;letter-spacing:0"></span>
+    </div>
+    <table class="leaderboard">
+      <thead><tr><th>#</th><th>Player</th><th>Buy-ins</th><th>Score</th></tr></thead>
+      <tbody id="leaderboard-body"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="round-header">
+      <div class="round-num" id="round-label">Round 1</div>
+    </div>
+    <div id="score-entry-rows"></div>
+    <p class="hint">Enter points earned this round. Players at 100+ will be prompted to buy in or leave.</p>
+    <div class="divider"></div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button class="btn btn-outline btn-sm" onclick="clearRoundInputs()">Clear</button>
+      <button class="btn btn-gold" style="flex:1;padding:13px" onclick="submitRound()">Submit Round</button>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:10px;margin-top:4px;margin-bottom:20px">
+    <button class="btn btn-outline btn-sm" onclick="undoLastRound()" style="flex:1">↩ Undo Round</button>
+    <button class="btn btn-red btn-sm" onclick="openEndModal()" style="flex:1">End Game</button>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div id="screen-history" class="screen">
+  <div id="history-content">
+    <div style="text-align:center;padding:40px 20px;color:var(--cream-dim)">
+      <div style="font-size:44px;margin-bottom:12px">🃏</div>
+      <p style="font-size:15px;line-height:1.6">No rounds played yet.</p>
+    </div>
+  </div>
+</div>
+
+<!-- POT MODAL -->
+<div class="modal-overlay" id="pot-modal">
+  <div class="modal-box">
+    <div class="modal-title">Update Pot</div>
+    <div class="pot-row">
+      <span class="pot-prefix">$</span>
+      <input type="number" id="pot-modal-input" placeholder="0.00" step="0.01" min="0">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closePotModal()">Cancel</button>
+      <button class="btn btn-gold" onclick="savePot()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- BUY-IN MODAL -->
+<div class="modal-overlay" id="buyin-modal">
+  <div class="modal-box">
+    <div style="text-align:center;font-size:40px;margin-bottom:8px">🃏</div>
+    <div class="modal-title" style="text-align:center" id="buyin-modal-title">Player Busted!</div>
+    <div style="background:rgba(139,26,26,0.07);border-radius:10px;padding:14px;margin-bottom:4px;text-align:center">
+      <div style="font-size:13px;color:#666;margin-bottom:4px">Score reached 100+</div>
+      <div style="font-size:28px;font-weight:700;color:var(--red);font-family:'Playfair Display',serif" id="buyin-score-display"></div>
+      <div style="font-size:13px;color:#666;margin-top:6px">Re-entry costs:</div>
+      <div style="font-size:26px;font-weight:900;color:var(--gold);font-family:'Playfair Display',serif" id="buyin-cost-display"></div>
+      <div style="font-size:12px;color:#888;margin-top:2px" id="buyin-reset-note">(added to the pot · score resets to 0)</div>
+    </div>
+    <div class="modal-actions" style="flex-direction:column;gap:10px">
+      <button class="btn btn-green btn-block" onclick="playerBuyIn()" style="padding:15px;font-size:16px">Buy In — Pay <span id="buyin-btn-amount"></span></button>
+      <button class="btn btn-red btn-block" onclick="playerLeave()" style="padding:15px">Leave Game</button>
+    </div>
+  </div>
+</div>
+
+<!-- END MODAL -->
+<div class="modal-overlay" id="end-modal">
+  <div class="modal-box">
+    <div class="modal-title">End Game?</div>
+    <p style="color:#444;font-size:15px">This will declare a winner and reset the game.</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeEndModal()">Cancel</button>
+      <button class="btn btn-red" onclick="endGame()">End Game</button>
+    </div>
+  </div>
+</div>
+
+<!-- WINNER MODAL -->
+<div class="modal-overlay" id="winner-modal">
+  <div class="modal-box" style="text-align:center">
+    <div style="font-size:56px;margin-bottom:10px">🏆</div>
+    <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:900;color:var(--red);margin-bottom:4px" id="winner-name-modal"></div>
+    <div style="font-size:13px;color:#888;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px">Wins the Game!</div>
+    <div style="background:rgba(201,146,42,0.12);border-radius:10px;padding:12px;margin-bottom:18px">
+      <div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px">Pot Won</div>
+      <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:var(--gold)" id="winner-pot-modal"></div>
+    </div>
+    <button class="btn btn-gold btn-block" onclick="resetGame()" style="padding:14px">New Game</button>
+  </div>
+</div>
+
+<script>
+let state = {
+  phase: 'setup',
+  players: [],          // active player names
+  eliminated: [],       // eliminated player names
+  pot: 0,
+  baseBuyIn: 0,
+  buyIns: {},           // name -> count (0 = initial, 1 = first re-entry, etc.)
+  lastBuyIn: {},        // name -> last amount paid
+  scores: {},
+  rounds: [],
+  currentRound: 1
+};
+
+// Queue of players who busted this round and need a decision
+let bustQueue = [];
+let currentBustPlayer = null;
+
+function save() { try { localStorage.setItem('koumkan', JSON.stringify(state)); } catch(e) {} }
+function load() { try { const d = localStorage.getItem('koumkan'); if (d) state = JSON.parse(d); } catch(e) {} }
+function fmt(n) { return '$' + parseFloat(n || 0).toFixed(2); }
+
+/* ── SETUP ── */
+function addPlayer() {
+  const inp = document.getElementById('player-input');
+  const name = inp.value.trim();
+  if (!name || state.players.includes(name)) { inp.value = ''; return; }
+  state.players.push(name);
+  state.scores[name] = 0;
+  inp.value = '';
+  renderSetup();
+  save();
+}
+function removePlayer(name) {
+  state.players = state.players.filter(p => p !== name);
+  delete state.scores[name];
+  renderSetup(); save();
+}
+function renderSetup() {
+  const list = document.getElementById('player-list');
+  list.innerHTML = '';
+  state.players.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'player-chip';
+    div.innerHTML = `<span>${p}</span><button class="remove-btn" onclick="removePlayer('${p.replace(/'/g,"\\'")}')">×</button>`;
+    list.appendChild(div);
+  });
+  document.getElementById('no-players-note').style.display = state.players.length < 2 ? 'block' : 'none';
+}
+function startGame() {
+  if (state.players.length < 2) { document.getElementById('no-players-note').style.display = 'block'; return; }
+  const buyIn = parseFloat(document.getElementById('buyin-input').value) || 0;
+  state.baseBuyIn = buyIn;
+  state.pot = buyIn * state.players.length;
+  state.phase = 'game';
+  state.rounds = []; state.currentRound = 1;
+  state.eliminated = [];
+  state.buyIns = {}; state.lastBuyIn = {};
+  state.players.forEach(p => { state.scores[p] = 0; state.buyIns[p] = 0; state.lastBuyIn[p] = buyIn; });
+  save(); showTab('score'); renderScore();
+}
+
+/* ── TABS ── */
+function showTab(tab) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['setup','score','history'][i] === tab));
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + tab).classList.add('active');
+  if (tab === 'score') renderScore();
+  if (tab === 'history') renderHistory();
+}
+
+/* ── SCORE SCREEN ── */
+function renderScore() {
+  document.getElementById('pot-display-amount').textContent = fmt(state.pot);
+  document.getElementById('round-label').textContent = 'Round ' + state.currentRound;
+  document.getElementById('round-counter').textContent = state.rounds.length + ' round' + (state.rounds.length !== 1 ? 's' : '') + ' played';
+
+  // Leaderboard — active sorted by score, then eliminated
+  const active = [...state.players].sort((a,b) => state.scores[a] - state.scores[b]);
+  const tbody = document.getElementById('leaderboard-body');
+  tbody.innerHTML = '';
+  let rank = 1;
+  active.forEach(p => {
+    const cls = rank <= 3 ? 'rank-' + rank : 'rank-other';
+    const buyInCount = state.buyIns[p] || 0;
+    const tr = document.createElement('tr');
+    const scoreVal = state.scores[p];
+    const scoreClass = scoreVal >= 90 ? ' class="score-warning"' : '';
+    tr.innerHTML = `
+      <td><span class="rank-badge ${cls}">${rank}</span></td>
+      <td>${p}${buyInCount > 0 ? `<span class="buyin-badge">${buyInCount}x</span>` : ''}</td>
+      <td style="text-align:center;font-size:13px;color:#888">${fmt(state.lastBuyIn[p] || 0)}</td>
+      <td${scoreClass}>${scoreVal}</td>`;
+    tbody.appendChild(tr);
+    rank++;
+  });
+  state.eliminated.forEach(p => {
+    const tr = document.createElement('tr');
+    tr.className = 'eliminated';
+    tr.innerHTML = `<td></td><td>${p}<span class="eliminated-tag">out</span></td><td></td><td>—</td>`;
+    tbody.appendChild(tr);
+  });
+
+  // Entry rows (active players only)
+  const rows = document.getElementById('score-entry-rows');
+  rows.innerHTML = '';
+  if (state.players.length === 0) {
+    rows.innerHTML = '<p style="color:#888;text-align:center;padding:10px">No active players remaining.</p>';
+    return;
+  }
+  state.players.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'score-entry-row';
+    div.innerHTML = `
+      <span class="player-name">${p} <span style="font-size:12px;color:#888;font-weight:400">(${state.scores[p]})</span></span>
+      <input type="number" id="inp-${CSS.escape(p)}" placeholder="0" min="0" inputmode="numeric">`;
+    rows.appendChild(div);
+  });
+}
+
+function clearRoundInputs() {
+  state.players.forEach(p => { const el = document.getElementById('inp-' + CSS.escape(p)); if (el) el.value = ''; });
+}
+
+function submitRound() {
+  if (state.players.length === 0) return;
+  const roundScores = {};
+  state.players.forEach(p => {
+    const el = document.getElementById('inp-' + CSS.escape(p));
+    roundScores[p] = el ? (parseInt(el.value) || 0) : 0;
+    state.scores[p] += roundScores[p];
+  });
+
+  const roundWinner = state.players.reduce((a,b) => roundScores[a] < roundScores[b] ? a : b);
+  state.rounds.push({ round: state.currentRound, scores: roundScores, winner: roundScores[roundWinner] === 0 ? roundWinner : null, buyIns: [], eliminations: [] });
+  state.currentRound++;
+  clearRoundInputs();
+  save();
+
+  // Check for busted players (100+) — queue them up
+  bustQueue = state.players.filter(p => state.scores[p] >= 100);
+  if (bustQueue.length > 0) {
+    processNextBust();
+  } else {
+    renderScore();
+    checkLastPlayer();
+  }
+}
+
+function highestNonBustedScore() {
+  const busting = new Set([...bustQueue, currentBustPlayer]);
+  const nonBusted = state.players.filter(p => !busting.has(p) && state.scores[p] < 100);
+  if (nonBusted.length === 0) return 0;
+  return Math.max(...nonBusted.map(p => state.scores[p]));
+}
+
+function processNextBust() {
+  if (bustQueue.length === 0) { renderScore(); checkLastPlayer(); return; }
+  currentBustPlayer = bustQueue.shift();
+  const score = state.scores[currentBustPlayer];
+  const lastAmount = state.lastBuyIn[currentBustPlayer] || state.baseBuyIn;
+  const newCost = lastAmount * 2;
+  const resetScore = highestNonBustedScore();
+  document.getElementById("buyin-modal-title").textContent = currentBustPlayer + " Busted!";
+  document.getElementById("buyin-score-display").textContent = score + " points";
+  document.getElementById("buyin-cost-display").textContent = fmt(newCost);
+  document.getElementById("buyin-btn-amount").textContent = fmt(newCost);
+  document.getElementById("buyin-reset-note").textContent = "added to the pot · score resets to " + resetScore;
+  document.getElementById("buyin-modal").classList.add("open");
+}
+
+function playerBuyIn() {
+  document.getElementById("buyin-modal").classList.remove("open");
+  const lastAmount = state.lastBuyIn[currentBustPlayer] || state.baseBuyIn;
+  const newCost = lastAmount * 2;
+  const resetScore = highestNonBustedScore();
+  state.pot += newCost;
+  state.lastBuyIn[currentBustPlayer] = newCost;
+  state.buyIns[currentBustPlayer] = (state.buyIns[currentBustPlayer] || 0) + 1;
+  state.scores[currentBustPlayer] = resetScore;
+  const lastRound = state.rounds[state.rounds.length - 1];
+  if (lastRound) lastRound.buyIns.push({ player: currentBustPlayer, amount: newCost, resetScore });
+  save();
+  processNextBust();
+}
+
+function playerLeave() {
+  document.getElementById('buyin-modal').classList.remove('open');
+  state.players = state.players.filter(p => p !== currentBustPlayer);
+  state.eliminated.push(currentBustPlayer);
+  const lastRound = state.rounds[state.rounds.length - 1];
+  if (lastRound) lastRound.eliminations.push(currentBustPlayer);
+  save();
+  processNextBust();
+}
+
+function checkLastPlayer() {
+  if (state.players.length === 1) {
+    setTimeout(() => {
+      document.getElementById('winner-name-modal').textContent = state.players[0];
+      document.getElementById('winner-pot-modal').textContent = fmt(state.pot);
+      document.getElementById('winner-modal').classList.add('open');
+    }, 300);
+  }
+}
+
+function undoLastRound() {
+  if (state.rounds.length === 0) return;
+  const last = state.rounds.pop();
+  // Undo scores
+  Object.entries(last.scores).forEach(([p, s]) => {
+    if (state.scores[p] !== undefined) state.scores[p] -= s;
+  });
+  // Undo buy-ins
+  if (last.buyIns) last.buyIns.forEach(b => {
+    state.pot -= b.amount;
+    state.lastBuyIn[b.player] = b.amount / 2;
+    state.buyIns[b.player] = Math.max(0, (state.buyIns[b.player] || 1) - 1);
+    state.scores[b.player] = state.scores[b.player]; // already reversed above
+  });
+  // Undo eliminations
+  if (last.eliminations) last.eliminations.forEach(p => {
+    state.eliminated = state.eliminated.filter(e => e !== p);
+    state.players.push(p);
+  });
+  state.currentRound--;
+  save(); renderScore(); renderHistory();
+}
+
+/* ── POT ── */
+function openPotModal() { document.getElementById('pot-modal-input').value = state.pot; document.getElementById('pot-modal').classList.add('open'); }
+function closePotModal() { document.getElementById('pot-modal').classList.remove('open'); }
+function savePot() { state.pot = parseFloat(document.getElementById('pot-modal-input').value) || 0; save(); renderScore(); closePotModal(); }
+
+/* ── END ── */
+function openEndModal() { document.getElementById('end-modal').classList.add('open'); }
+function closeEndModal() { document.getElementById('end-modal').classList.remove('open'); }
+function endGame() {
+  closeEndModal();
+  const winner = state.players.length === 1 ? state.players[0] : state.players.reduce((a,b) => state.scores[a] < state.scores[b] ? a : b);
+  document.getElementById('winner-name-modal').textContent = winner;
+  document.getElementById('winner-pot-modal').textContent = fmt(state.pot);
+  document.getElementById('winner-modal').classList.add('open');
+}
+function resetGame() {
+  document.getElementById('winner-modal').classList.remove('open');
+  state = { phase:'setup', players:[], eliminated:[], pot:0, baseBuyIn:0, buyIns:{}, lastBuyIn:{}, scores:{}, rounds:[], currentRound:1 };
+  document.getElementById('buyin-input').value = '';
+  save(); renderSetup(); showTab('setup');
+}
+
+/* ── HISTORY ── */
+function renderHistory() {
+  const el = document.getElementById('history-content');
+  if (!state.rounds || state.rounds.length === 0) {
+    el.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--cream-dim)"><div style="font-size:44px;margin-bottom:12px">🃏</div><p>No rounds played yet.</p></div>`;
+    return;
+  }
+  let html = '';
+  [...state.rounds].reverse().forEach(r => {
+    html += `<div class="history-round"><div class="history-round-title">Round ${r.round}`;
+    if (r.winner) html += ` &nbsp;<span style="background:rgba(201,146,42,0.15);border:1px solid rgba(201,146,42,0.4);border-radius:6px;padding:2px 8px;font-size:12px;font-weight:700;color:#7a5a00">${r.winner} lowest</span>`;
+    html += `</div>`;
+    Object.entries(r.scores).forEach(([p, s]) => {
+      html += `<div class="history-row"><span>${p}</span><span>+${s}</span></div>`;
+    });
+    if (r.buyIns && r.buyIns.length) r.buyIns.forEach(b => {
+      html += '<div class="history-row" style="color:#1a5c2a;font-weight:600"><span>↩ ' + b.player + ' bought in (reset to ' + (b.resetScore || 0) + ')</span><span>+' + fmt(b.amount) + '</span></div>';
+    });
+    if (r.eliminations && r.eliminations.length) r.eliminations.forEach(p => {
+      html += `<div class="history-row" style="color:#888;font-style:italic"><span>${p} left the game</span><span>—</span></div>`;
+    });
+    html += `</div>`;
+  });
+
+  // Totals
+  const allPlayers = [...state.players, ...state.eliminated];
+  html += `<div class="card"><div class="card-title">Game Summary</div>`;
+  html += `<div class="history-row" style="font-weight:700;border-bottom:1px solid rgba(0,0,0,0.1);padding-bottom:8px;margin-bottom:4px"><span>Total Pot</span><span>${fmt(state.pot)}</span></div>`;
+  allPlayers.forEach((p,i) => {
+    const isOut = state.eliminated.includes(p);
+    const buyInCount = state.buyIns[p] || 0;
+    html += `<div class="history-row${isOut ? '" style="opacity:0.5;color:var(--dark)' : '" style="color:var(--dark)'}"><span>${p}${buyInCount > 0 ? ` <span class="buyin-badge">${buyInCount}x buy-in</span>` : ''}${isOut ? ' <span class="eliminated-tag">out</span>' : ''}</span><span>${isOut ? '—' : state.scores[p] + ' pts'}</span></div>`;
+  });
+  html += `</div>`;
+  el.innerHTML = html;
+}
+
+/* ── INIT ── */
+load();
+renderSetup();
+if (state.phase === 'game') {
+  if (state.baseBuyIn) document.getElementById('buyin-input').value = state.baseBuyIn;
+  showTab('score');
+}
+</script>
+</body>
+</html>
